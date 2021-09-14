@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cinemabox.dao.movie.MovieDao">
+	<!-- api로 받아온 영화추가 -->
+	<insert id="insertMovie" parameterType="com.cinemabox.vo.Movie">	
+		insert into CINEMABOX_MOVIE
+		(MOVIE_NO, MOVIE_TITLE, MOVIE_THUMBNAIL, MOVIE_GENRE, MOVIE_RELEASE_DATE, MOVIE_RUNNING_TIME, MOVIE_AGE, MOVIE_DIRECTOR, MOVIE_CASTING)
+		values
+		(#{no}, #{title}, #{thumbnail}, #{genre}, #{releaseDate}, #{runningTime}, #{age}, #{director}, #{casting})
+	</insert>
+
+	<!-- 선택한 영화 위시리스트 추가 -->
+	<insert id="insertWishlist" parameterType="com.cinemabox.vo.Wishlist">
+		insert into CINEMABOX_WISHLISTS
+		(WISHLIST_NO, MOVIE_NO, USER_ID)
+		values
+		(WISHLISTS_SEQ.nextval, #{movieNo}, #{userId})
+	</insert>	
+	
+	<!-- 특정 영화의 예매율, 누적관객수 갱신 -->
+	<update id="updateMovieRateCnt" parameterType="com.cinemabox.vo.Movie">
+		update 
+			CINEMABOX_MOVIE 
+		set 
+			MOVIE_RESERVATION_RATE = #{reservationRate},
+			MOVIE_CUMULATIVE_AUDIENCE_CNT = #{cumulativeAudienceCnt}
+		where
+			MOVIE_NO = #{no}					
+	</update>
+	
+	<update id="updateMovieStatus" parameterType="com.cinemabox.vo.Movie">
+		update 
+			CINEMABOX_MOVIE 
+		set 
+			MOVIE_STATUS = #{status}
+		where
+			MOVIE_NO = #{no}				
+	</update>
+	
+	<!-- 개봉 후 2달이 지난 영화 갱신하기 -->
+	<update id="updateCloseMovie" parameterType="com.cinemabox.dto.movie.CloseMovieDto">
+		update 
+			CINEMABOX_MOVIE 
+		set 
+			MOVIE_SCREENING_STATUS = #{screeningStatus}
+		where
+			MOVIE_NO = #{no}			
+	</update>
+	
+	<!-- 선택한 영화 위시리스트에서 삭제 -->
+	<delete id="deleteWishlist" parameterType="com.cinemabox.vo.Wishlist">
+		delete from CINEMABOX_WISHLISTS
+		where
+			movie_no = #{movieNo}
+			and user_id = #{userId}
+	</delete>
+	
+	<!-- 영화의 like를 갱신 -->
+	<update id="updateMovieLike" parameterType="com.cinemabox.vo.Movie">
+		update 
+			CINEMABOX_MOVIE 
+		set 
+			MOVIE_LIKE = #{userLike}
+		where 
+			MOVIE_NO = #{no}
+	</update>
+	
+	<!-- 모든 영화 가져오기 -->
+	<select id="getAllmovies" resultType="com.cinemabox.vo.Movie">
+		select
+		    MOVIE_NO as no,
+		    MOVIE_TITLE as title, 
+		    MOVIE_THUMBNAIL as thumbnail, 
+		    MOVIE_RATING as rating, 
+		    MOVIE_RESERVATION_RATE as reservationRate,
+		    MOVIE_CUMULATIVE_AUDIENCE_CNT as cumulativeAudienceCnt,
+		    MOVIE_GENRE as genre, 
+		    MOVIE_RELEASE_DATE as releaseDate, 
+		    MOVIE_RUNNING_TIME as runningTime, 
+		    MOVIE_SYNOPSIS as synopsis,
+		    MOVIE_TRAILER_FIRST as trailerFirst,
+		    MOVIE_TRAILER_SECOND as trailerSecond,
+		    MOVIE_AGE as age,
+		    MOVIE_DIRECTOR as director,
+		    MOVIE_CASTING as casting,
+		    MOVIE_LIKE as userLike,
+		    MOVIE_STATUS as status,
+		    MOVIE_CLOSE_DATE as closeDate			
+		from
+			CINEMABOX_MOVIE
+	</select>
+	
+	<!-- 오늘 혹은 이전에 개봉한 영화 모두 가져오기 -->
+	<select id="getUnreleaseMoviesByToday" resultType="com.cinemabox.vo.Movie">
+		select
+		    MOVIE_NO as no,
+		    MOVIE_TITLE as title, 
+		    MOVIE_THUMBNAIL as thumbnail, 
+		    MOVIE_RATING as rating, 
+		    MOVIE_RESERVATION_RATE as reservationRate,
+		    MOVIE_CUMULATIVE_AUDIENCE_CNT as cumulativeAudienceCnt,
+		    MOVIE_GENRE as genre, 
+		    MOVIE_RELEASE_DATE as releaseDate, 
+		    MOVIE_RUNNING_TIME as runningTime, 
+		    MOVIE_SYNOPSIS as synopsis,
+		    MOVIE_TRAILER_FIRST as trailerFirst,
+		    MOVIE_TRAILER_SECOND as trailerSecond,
+		    MOVIE_AGE as age,
+		    MOVIE_DIRECTOR as director,
+		    MOVIE_CASTING as casting,
+		    MOVIE_LIKE as userLike,
+		    MOVIE_STATUS as status,
+		    MOVIE_CLOSE_DATE as closeDate			
+		from
+			CINEMABOX_MOVIE
+		where
+			MOVIE_RELEASE_DATE &lt;= to_date(to_char(sysdate, 'YYYYMMDD'))
+			and MOVIE_STATUS = 'N'
+			and MOVIE_SCREENING_STATUS = 'Y'
+	</select>
+	
+	<!-- 개봉 후 2달이 지난 영화 조회하기 -->
+	<select id="getCloseMovies" resultType="com.cinemabox.dto.movie.CloseMovieDto">
+		select
+		    MOVIE_NO as no,
+		    MOVIE_TITLE as title,
+		    MOVIE_STATUS as status,
+		    MOVIE_SCREENING_STATUS as screeningStatus,
+		    MOVIE_RELEASE_DATE as releasedDate,
+		    ADD_MONTHS(MOVIE_RELEASE_DATE, 2) as twoMonth
+		from
+		    CINEMABOX_MOVIE
+		where
+		    ADD_MONTHS(MOVIE_RELEASE_DATE, 2) &lt;= to_date(to_char(sysdate, 'YYYYMMDD'))
+		    and MOVIE_SCREENING_STATUS = 'Y'	
+	</select>
+		
+	<!-- 영화 번호와 사용자 아이디로 찜한 내역 가져오기 -->
+	<select id="getLikeByUserId" parameterType="com.cinemabox.vo.Wishlist" resultType="com.cinemabox.vo.Wishlist">
+		select
+			m.movie_no as movieNo,
+            m.movie_like as movieLike,
+            w.user_id as userId
+		from
+			CINEMABOX_MOVIE m, CINEMABOX_WISHLISTS w
+		where
+			m.movie_no = #{movieNo}
+            and w.user_id = #{userId}
+            and m.movie_no = w.movie_no
+	</select>
+
+	<!-- 영화번호로 영화 조회 -->
+	<select id="getMovieByNo" parameterType="int" resultType="com.cinemabox.vo.Movie">
+		select
+		    MOVIE_NO as no,
+		    MOVIE_TITLE as title, 
+		    MOVIE_THUMBNAIL as thumbnail, 
+		    MOVIE_RATING as rating, 
+		    MOVIE_RESERVATION_RATE as reservationRate,
+		    MOVIE_CUMULATIVE_AUDIENCE_CNT as cumulativeAudienceCnt,
+		    MOVIE_GENRE as genre, 
+		    MOVIE_RELEASE_DATE as releaseDate, 
+		    MOVIE_RUNNING_TIME as runningTime, 
+		    MOVIE_SYNOPSIS as synopsis,
+		    MOVIE_TRAILER_FIRST as trailerFirst,
+		    MOVIE_TRAILER_SECOND as trailerSecond,
+		    MOVIE_AGE as age,
+		    MOVIE_DIRECTOR as director,
+		    MOVIE_CASTING as casting,
+		    MOVIE_LIKE as userLike,
+		    MOVIE_STATUS as status,
+		    MOVIE_CLOSE_DATE as closeDate
+		from
+			CINEMABOX_MOVIE
+		where
+			MOVIE_NO = #{value}
+	</select>
+	
+	<!-- 현재상영작 정렬 -->
+	<select id="getNowMovieList" resultType="com.cinemabox.vo.Movie">
+		select
+			MOVIE_NO as no,
+			MOVIE_TITLE as title,
+			MOVIE_THUMBNAIL as thumbnail,
+			MOVIE_RATING as rating,
+			MOVIE_RESERVATION_RATE as reservationRate,
+			MOVIE_CUMULATIVE_AUDIENCE_CNT as cumulativeAudienceCnt,
+			MOVIE_GENRE as genre,
+			MOVIE_RELEASE_DATE as releaseDate,
+			MOVIE_RUNNING_TIME as runningTime,
+			MOVIE_SYNOPSIS as synopsis,
+			MOVIE_TRAILER_FIRST as trailerFirst,
+			MOVIE_TRAILER_SECOND as trailerSecond,
+			MOVIE_AGE as age,
+			MOVIE_DIRECTOR as director,
+			MOVIE_CASTING as casting,
+			MOVIE_STATUS as status,
+			MOVIE_CLOSE_DATE as closeDate
+		from (
+			select
+			<choose>
+				<when test="sort == 'rating'">
+					row_number() over (order by MOVIE_RATING desc) row_number,
+				</when>
+				<when test="sort == 'count'">
+					row_number() over (order by MOVIE_CUMULATIVE_AUDIENCE_CNT desc) row_number,
+				</when>
+				<when test="sort == 'ticketing'">
+					row_number() over (order by MOVIE_RESERVATION_RATE desc) row_number,
+				</when>
+				<otherwise>
+					row_number() over (order by MOVIE_RESERVATION_RATE desc) row_number,
+				</otherwise>
+			</choose>
+				MOVIE_NO, MOVIE_TITLE,MOVIE_THUMBNAIL,MOVIE_RATING,
+				MOVIE_RESERVATION_RATE,MOVIE_CUMULATIVE_AUDIENCE_CNT,
+				MOVIE_GENRE,MOVIE_RELEASE_DATE,MOVIE_RUNNING_TIME,
+				MOVIE_SYNOPSIS,MOVIE_TRAILER_FIRST,MOVIE_TRAILER_SECOND,
+				MOVIE_AGE,MOVIE_DIRECTOR,MOVIE_CASTING,MOVIE_STATUS,MOVIE_CLOSE_DATE
+			from
+				CINEMABOX_MOVIE
+			where 
+				MOVIE_STATUS = 'Y'
+				and MOVIE_SCREENING_STATUS = 'Y'
+				and MOVIE_RELEASE_DATE &gt; sysdate - 50)
+		where 
+			row_number &lt;= 12
+	</select>
+	
+	<!-- 개봉예정작 정렬 -->
+	<select id="getUnreleasedMovieList" resultType="com.cinemabox.vo.Movie">
+		select
+			MOVIE_NO as no,
+			MOVIE_TITLE as title,
+			MOVIE_THUMBNAIL as thumbnail,
+			MOVIE_RATING as rating,
+			MOVIE_RESERVATION_RATE as reservationRate,
+			MOVIE_CUMULATIVE_AUDIENCE_CNT as cumulativeAudienceCnt,
+			MOVIE_GENRE as genre,
+			MOVIE_RELEASE_DATE as releaseDate,
+			MOVIE_RUNNING_TIME as runningTime,
+			MOVIE_SYNOPSIS as synopsis,
+			MOVIE_TRAILER_FIRST as trailerFirst,
+			MOVIE_TRAILER_SECOND as trailerSecond,
+			MOVIE_AGE as age,
+			MOVIE_DIRECTOR as director,
+			MOVIE_CASTING as casting,
+			MOVIE_STATUS as status,
+			MOVIE_CLOSE_DATE as closeDate
+		from (
+			select
+			<choose>
+				<when test="sort == 'abc'">
+					row_number() over (order by MOVIE_TITLE asc) row_number,
+				</when>
+				<when test="sort == 'release'">
+					row_number() over (order by MOVIE_RELEASE_DATE asc) row_number,
+				</when>
+				<otherwise>
+					row_number() over (order by MOVIE_RELEASE_DATE asc) row_number,
+				</otherwise>
+			</choose>
+				MOVIE_NO, MOVIE_TITLE,MOVIE_THUMBNAIL,MOVIE_RATING,
+				MOVIE_RESERVATION_RATE,MOVIE_CUMULATIVE_AUDIENCE_CNT,
+				MOVIE_GENRE,MOVIE_RELEASE_DATE,MOVIE_RUNNING_TIME,
+				MOVIE_SYNOPSIS,MOVIE_TRAILER_FIRST,MOVIE_TRAILER_SECOND,
+				MOVIE_AGE,MOVIE_DIRECTOR,MOVIE_CASTING,MOVIE_STATUS,MOVIE_CLOSE_DATE
+			from
+				CINEMABOX_MOVIE
+			where MOVIE_RELEASE_DATE &gt; sysdate
+			and MOVIE_STATUS = 'N' and MOVIE_SCREENING_STATUS = 'Y')
+		where 
+			row_number &lt;= 12
+	</select>
+	
+	<!-- 검색 -->
+	<select id="getSearchResult" parameterType="string" resultType="com.cinemabox.vo.Movie">
+		select
+		    MOVIE_NO as no,
+		    MOVIE_TITLE as title, 
+		    MOVIE_THUMBNAIL as thumbnail, 
+		    MOVIE_RATING as rating, 
+		    MOVIE_RESERVATION_RATE as reservationRate,
+		    MOVIE_CUMULATIVE_AUDIENCE_CNT as cumulativeAudienceCnt,
+		    MOVIE_GENRE as genre, 
+		    MOVIE_RELEASE_DATE as releaseDate, 
+		    MOVIE_RUNNING_TIME as runningTime, 
+		    MOVIE_SYNOPSIS as synopsis,
+		    MOVIE_TRAILER_FIRST as trailerFirst,
+		    MOVIE_TRAILER_SECOND as trailerSecond,
+		    MOVIE_AGE as age,
+		    MOVIE_DIRECTOR as director,
+		    MOVIE_CASTING as casting,
+		    MOVIE_LIKE as userLike,
+		    MOVIE_STATUS as status,
+		    MOVIE_CLOSE_DATE as closeDate
+		from
+	    	CINEMABOX_MOVIE
+		where
+	    	MOVIE_TITLE like '%'||#{value}||'%'
+	    	and MOVIE_SCREENING_STATUS = 'Y'
+	</select>
+</mapper>

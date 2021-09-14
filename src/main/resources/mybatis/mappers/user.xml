@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+	
+<mapper namespace="com.cinemabox.dao.user.UserDao">
+
+	<select id="getUserById" parameterType="string" resultType="com.cinemabox.vo.User">
+		select
+			user_id 			as id, 
+			user_password 		as password, 
+			user_name 			as name, 
+			user_email 			as email, 
+			user_phone_number 	as phone, 
+			user_birth 			as birth, 
+			user_created_date 	as createdDate, 
+			user_deleted_date 	as deletedDate, 
+			user_lock_date 		as lockDate, 
+			user_point 			as point, 
+			user_status 		as status, 
+			coupon_no 			as CouponNo, 
+			wishlist_no 		as wishNo, 
+			user_role_type 		as roleType, 
+			grade_no 			as gradeNo, 
+			user_iskakao		as isKakao 
+	
+		from
+			cinemabox_users
+		where
+			user_id = #{value}
+	</select>
+	
+	<select id="getUserByEmail" parameterType="string" resultType="com.cinemabox.vo.User">
+		select
+			user_id 			as id, 
+			user_password 		as password, 
+			user_name 			as name, 
+			user_email 			as email, 
+			user_phone_number 	as phone, 
+			user_birth 			as birth, 
+			user_created_date 	as createdDate, 
+			user_deleted_date 	as deletedDate, 
+			user_lock_date 		as lockDate, 
+			user_point 			as point, 
+			user_status 		as status, 
+			coupon_no 			as CouponNo, 
+			wishlist_no 		as wishNo, 
+			user_role_type 		as roleType, 
+			grade_no 			as gradeNo, 
+			user_iskakao		as isKakao 
+			
+		from
+			cinemabox_users
+		where
+			user_email = #{value}
+	</select>
+	
+	<select id="getwishListById" parameterType="string" resultType="com.cinemabox.dto.user.UserDto">
+		select 
+       		W.wishlist_no as wishlistNo, 
+       		M.movie_no as movieNo,
+       		M.movie_thumbnail as movieThumbnail, 
+       		M.movie_title as movieTitle, 
+       		W.wishlist_created_date as wishlistCreatedDate
+       		
+		from 
+			cinemabox_wishlists W , cinemabox_movie M
+		where 
+			W.movie_no = M.movie_no
+			and
+			W.user_id = #{value} 
+	</select>
+	
+	<select id="getCouponsById" parameterType="String" resultType="com.cinemabox.dto.user.UserDto">
+		select 
+			CList.user_id as id, 
+	       	C.coupon_no as couponNo, 
+	       	C.coupon_type as couponType, 
+	      	C.coupon_exp_date as couponExpDate
+       
+		from
+    		cinemabox_couponlist CList, cinemabox_coupons C
+		where 
+	     	CList.coupon_no = C.coupon_no
+	    and 
+	    	C.COUPON_STATUS = 'N'
+	     and
+	    	CList.user_id = #{value}
+	</select>
+	
+	<select id="getMovieReservationsById" parameterType="String" resultType="com.cinemabox.dto.user.UserDto">
+		select 
+		    R.reservation_no as reservationNo,
+		    M.movie_title as movieTitle,
+		    R.reservation_payment as reservationPayment,
+		    R.reservation_total_price as reservationPrice,
+		    R.reservation_created_date as reservationCreatedDate,
+		    R.reservation_point as reservationPoint
+		from 
+    		cinemabox_reservation R, cinemabox_movie M
+		where
+		    R.movie_no = M.movie_no
+		    and
+		    R.user_id = #{value}
+		order by 
+			reservation_created_date desc
+	</select>
+	
+	
+	<select id="getOrderlistById" parameterType="String" resultType="com.cinemabox.dto.user.UserDto">
+		select
+		    OL.order_no as orderNo,
+		    S.snack_name as name,
+		    OL.order_amount as orderAmount, 
+		    OL.order_date as orderDate,
+		    (S.snack_price * OL.order_amount)as orderPrice
+		from
+		    cinemabox_order_list OL, cinemabox_snack S
+		where 
+		    OL.snack_no = S.snack_no and 
+		    OL.user_id = #{value}
+		union
+		select
+		    OL.order_no as orderNo,
+		    G.gift_name as name,
+		    OL.order_amount as orderAmount, 
+		    OL.order_date as orderDate,
+		    (G.gift_price * OL.order_amount)as orderPrice
+		from
+		    cinemabox_order_list OL, cinemabox_gifts G
+		where 
+		    OL.gift_no = G.gift_no and 
+		    OL.user_id = #{value}
+	</select>
+	
+	<insert id="insertUser" parameterType="com.cinemabox.vo.User">
+		insert into cinemabox_users
+		(user_id, user_password, user_name, user_email, user_birth, user_phone_number, user_address)
+		values
+		(#{id}, #{password}, #{name}, #{email}, TO_DATE(#{birth},'YYYY-MM-DD'), #{phone}, #{address})
+	</insert>
+	
+	<update id="updateUser" parameterType="com.cinemabox.vo.User">
+		update cinemabox_users
+		set
+			user_password = #{password}, 
+			user_email = #{email}, 
+			user_phone_number = #{phone}, 
+			user_address = #{address} 
+		where user_id = #{value}
+	</update>
+	
+	<select id="countCoupon" parameterType="com.cinemabox.vo.CouponList" resultType="int">
+		select
+		    count(*)
+		from
+    		cinemabox_couponlist CList, cinemabox_coupons C
+		where 
+	     	CList.coupon_no = C.coupon_no
+	    and 
+	    	C.COUPON_STATUS = 'N'
+	     and
+	    	CList.user_id = #{value}	
+	</select>
+	
+	<select id="countWishlists" parameterType="com.cinemabox.vo.Wishlist" resultType="int">
+		select 
+			count(*) 
+		from 
+			CINEMABOX_WISHLISTS
+		where 
+			user_id=#{value}
+	</select>
+	
+	<!-- 결제완료 후 최종금액에 대한 0.3프로의 적립금을 업데이트 한다. -->
+	<update id="updatePayPoint" parameterType="com.cinemabox.vo.User">
+		update 
+			CINEMABOX_USERS
+		set
+			USER_POINT = #{point}
+		where
+			USER_ID = #{id}
+	</update>
+	
+	
+</mapper>

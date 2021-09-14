@@ -1,0 +1,139 @@
+@charset "UTF-8";
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+div::-webkit-scrollbar {
+	width: 5px;
+}
+li{
+	list-style: none;
+}
+img, svg {
+	vertical-align: text-bottom;
+}
+dl{
+	margin-block-start: 0;
+    margin-block-end: 0;
+}
+dd{
+	margin:0;
+}
+a{
+	text-decoration: none;
+	color:black;
+}
+a:hover{
+	text-decoration: none;
+	color:black;
+}
+.row{
+	--bs-gutter-x: 0;
+}
+.act-prev{
+	background-color: #6c757d!important;
+	color:white !important;
+}
+.act{
+	background-color: #ffc107 !important;
+}
+.loc-act{
+	background: white !important;
+}
+.day-act{
+	background:#eee !important;
+}
+.nav-tabs .nav-link{
+	border-radius: 0px;
+	padding:18px;
+	font-size: 0.85rem;
+}
+.nav-link, .nav-link:hover{
+	color:#7F7F7F;
+}
+.nav-tabs, #div-days{
+	border-bottom:1px solid #CCC;
+}
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active{
+	border-bottom:1px solid black;
+}
+.section_step_tit{
+	height: 800px;
+}
+.section_step_tit > ul > li{
+	height: 200px;
+	background:white;
+	border:1px solid black;
+	border-bottom:none;
+	padding:80px 15px;
+	font-size: 0.8rem;
+	cursor: default;
+}
+.section_step_tit > ul > li:last-child{
+	border-bottom:1px solid black;
+}
+#div-movieInfo, #div-payment{
+	border-right:1px solid gray;
+}
+.dl-ticketing{
+	font-size:0.85rem;
+}
+.dl-ticketing dt{
+	float: left;
+	min-width:50px;
+}
+#ul-selectPay li, #ul-selectPay-simple li{
+	width: 33%;
+	padding:10px 10px 0 0 ;
+}
+#ul-selectPay-card li{
+	width: 20%;
+	padding:10px 5px 0 0 ;	
+}
+#ul-selectPay li button, #ul-selectPay-simple li button{
+	width: 100%;
+	font-size: 0.8rem;
+}
+#ul-selectPay-card li button{
+	width: 100%;
+	font-size: 0.7rem;
+}
+#div-total {
+	position:absolute;
+	bottom:0px;
+	width: 100%;
+}
+#div-total dl{
+	color:white;
+	width: 100%;
+	padding: 25px 30px;
+	border-top: 1px solid rgba(255, 255, 255, .2);
+}
+#div-total dl dt{
+	clear: both;
+    float: left;
+    line-height: 0px;
+    font-size: 0.9rem;
+}
+#div-total dl dd{
+	float: right;
+    clear: right;
+    line-height: 0px;
+    font-size: 0.8rem;
+}
+#a-confirm{
+	display: block;
+    border-radius: 0;
+    width:100%;
+    height: 64px;
+    line-height: 64px;
+    font-size: 1.2rem !important;
+    box-sizing: border-box;
+    font-size: 14px;
+    color: #ffffff !important;
+    text-align: center;
+    vertical-align: middle;
+    background-color: #FF243E;        
+    cursor: pointer;
+}

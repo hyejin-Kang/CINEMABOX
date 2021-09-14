@@ -1,0 +1,104 @@
+@charset "UTF-8";
+
+img, svg {
+	vertical-align: text-bottom;
+}
+
+.a-act{
+	color:gray !important;
+	font-weight: 600 !important;
+}
+
+.btn {
+	border-radius: 0px;
+	font-size: 19px;
+}
+
+.poster-info {
+	width: 230px;
+	height: 330px;
+	border-radius: 5px;
+	background: rgba(0, 0, 0, 0.7);
+	display: none;
+}
+
+.poster-info a {
+	width: 150px;
+	border: 1px solid white;
+	border-radius: 5px;
+	font-size: 14px;
+}
+
+.poster-info a:hover {
+	background: rgba(0, 0, 0, 0.5);
+	cursor: pointer;
+}
+
+.poster-info>div {
+	top: 40%;
+	left: 18%;
+}
+
+.poster {
+	width: 230px;
+	height: 330px;
+	border-radius: 5px;
+	margin: 1.5rem;
+}
+.li-poster{
+	width: 230px;
+	height: 330px;
+	border-radius: 5px;	
+	margin-bottom:6rem !important;
+	margin-top:1.5rem;
+	margin-left:1.62rem;
+	margin-right:1.75rem;
+}
+.li-poster h5, .poster h5{
+	width:230px;
+	font-size:1em;
+}
+.poster>img, .li-poster>img {
+	width: 230px;
+	height: 330px;
+	border-radius: 5px;
+}
+
+.navStyle {
+	border-bottom: 3px solid #ffc107;
+}
+
+.navStyle button {
+	color: black !important;
+}
+
+.sub-nav>li {
+	padding-right: 10px;
+	padding-left: 10px;
+	border-right: 1px solid #eee;
+	font-size: 14px;
+	color: #999;	
+	cursor: pointer;	
+}
+.sub-nav>li:last-child {
+	border: none;
+	padding-right: 0px;
+}
+.sub-nav a{
+	text-decoration:none;
+	font-size: 14px;
+	color: #999;	
+}
+.sub-nav a:hover {
+	color: #2E2E2E;
+}
+
+.rankNo {
+	top: 10px;
+	left: 15px;
+	font-size: 30px;
+	color: white;
+	text-shadow: 2px 2px 4px black;
+	z-index: 5;
+	cursor: default;
+}

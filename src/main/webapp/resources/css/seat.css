@@ -1,0 +1,106 @@
+@charset "UTF-8";
+div::-webkit-scrollbar {
+	width: 5px;
+}
+li{
+	list-style: none;
+}
+img, svg {
+	vertical-align: text-bottom;
+}
+dl{
+	margin-block-start: 0;
+    margin-block-end: 0;
+}
+dd{
+	margin:0;
+}
+a{
+	text-decoration: none;
+	color:black;
+}
+a:hover{
+	text-decoration: none;
+	color:black;
+}
+.row{
+	--bs-gutter-x: 0;
+}
+.act-prev{
+	background-color: #6c757d!important;
+	color:white !important;
+}
+.act{
+	background-color: #ffc107 !important;
+}
+.loc-act{
+	background: white !important;
+}
+.day-act{
+	background:#eee !important;
+}
+.nav-tabs .nav-link{
+	border-radius: 0px;
+	padding:18px;
+	font-size: 0.85rem;
+}
+.nav-link, .nav-link:hover{
+	color:#7F7F7F;
+}
+.nav-tabs, #div-days{
+	border-bottom:1px solid #CCC;
+}
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active{
+	border-bottom:1px solid black;
+}
+.section_step_tit{
+	height: 800px;
+}
+.section_step_tit > ul > li{
+	height: 200px;
+	background:white;
+	border:1px solid black;
+	border-bottom:none;
+	padding:80px 15px;
+	font-size: 0.8rem;
+	cursor: default;
+}
+.section_step_tit > ul > li:last-child{
+	border-bottom:1px solid black;
+}
+#div-selectPerson>div>div>input{
+	width: 20%;
+	border:none;
+}
+#div-selectPerson div button{
+	border:none;
+	background:white;
+}
+.bx-num {
+	display:inline-block;
+    width: 200px;
+    border-radius: 4px;
+    background-color: #fff;
+    box-sizing: border-box;
+    border: 1px solid black;
+}
+.bx-num button{
+	padding:10px;
+}
+.txt-num {
+	display:inline-block;
+	width:59%;
+    padding: 11px 0;
+    font-family: 'Roboto';
+    font-size: 15px;
+    font-weight: bold;
+    color: #000;
+    text-align: center;
+    vertical-align: middle;
+}
+#ul-row li{
+	padding:10px;
+}
+#div-col input{
+	margin:10px;
+}

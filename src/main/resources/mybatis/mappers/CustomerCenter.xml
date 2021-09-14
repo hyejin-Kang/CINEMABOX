@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cinemabox.dao.Question.CustomerCenterDao">
+
+<select id="getQuestionByName" parameterType="HashMap" resultType="com.cinemabox.vo.Question">
+		select 
+			question_no					questionNo,
+			question_title				questionTitle,
+			question_date				questionDate,
+			question_state				state,
+			question_satisfaction		satisfaction
+		from
+			cinemabox_question
+		where
+			question_name = #{name}
+			and question_email = #{email}
+	</select>
+	
+	
+	<select id="getQuestionByNo" parameterType="int" resultType="com.cinemabox.vo.Question">
+		select 
+			question_no					questionNo,
+			question_title				questionTitle,
+			question_content			questionContent,
+			question_date				questionDate,
+			question_state				state,
+			question_name				name,
+			question_email				email,
+			question_satisfaction		satisfaction,
+			answer_content				answerContent,
+			answer_date					answerDate
+			
+		from
+			cinemabox_question
+		where
+			question_no = #{questionNo}
+			
+	</select>
+	
+
+	<insert id="insertQuestion" parameterType="com.cinemabox.dto.Question.QuestionDto">
+		insert into cinemabox_question
+		(question_no, question_title, question_content, question_date, question_name, question_email, question_phone)
+		values
+		(question_seq.nextval, #{questionTitle}, #{questionContent},  sysDate,  #{name},  #{email},  #{phone})
+	</insert>
+	
+	
+	
+	<delete id="deleteQuestion" parameterType="int">
+		delete from
+			cinemabox_question
+		where
+			question_no = #{questionNo}
+	</delete>
+	
+	
+	
+	<update id="updateSatisfaction" parameterType="com.cinemabox.vo.Question">
+		update
+			cinemabox_question
+		set
+			question_satisfaction = #{satisfaction}
+			
+		where
+			question_no = #{questionNo}
+	</update>
+	
+	
+
+	<update id="insertAnswer" parameterType="com.cinemabox.dto.Question.AnswerDto">
+		update
+			cinemabox_question
+		set		
+			answer_content = #{answerContent},	
+			question_state ='Y',
+			answer_date = sysDate
+			
+		where
+			question_no = #{questionNo}
+	</update>
+	
+	
+	<select id="getQuestionCountByName" parameterType="com.cinemabox.dto.Question.QuestionDto" resultType="int">
+		select 
+			count(*)
+		from
+			cinemabox_question
+		where
+			question_name = #{name}
+			and question_email = #{email}
+	</select>
+
+
+</mapper>

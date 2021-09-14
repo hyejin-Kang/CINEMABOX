@@ -1,0 +1,227 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>com.cinemabox</groupId>
+   <artifactId>cinemabox</artifactId>
+   <version>0.0.1-SNAPSHOT</version>
+   <packaging>war</packaging>
+   <properties>
+      <spring.version>5.2.16.RELEASE</spring.version>
+      <log4j.version>2.14.1</log4j.version>
+      <slf4j.version>1.7.31</slf4j.version>
+      <lombok.version>1.18.20</lombok.version>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+   </properties>
+   <dependencies>
+      <!-- 아파치 httpclient -->
+      <dependency>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpclient</artifactId>
+          <version>4.5.13</version>
+      </dependency>
+      
+      <!-- commons-fileuploads -->
+	  <dependency>
+		  <groupId>commons-fileupload</groupId>
+		  <artifactId>commons-fileupload</artifactId>
+		  <version>1.2.1</version> 
+	  </dependency>
+	  
+	  <dependency>     
+		  <groupId>commons-io</groupId>       
+		  <artifactId>commons-io</artifactId>     
+		  <version>1.4</version>   
+	  </dependency>
+      
+      <!-- jsoup -->
+      <dependency>
+          <groupId>org.jsoup</groupId>
+          <artifactId>jsoup</artifactId>
+          <version>1.14.1</version>
+      </dependency>
+      <!-- jsoup -->
+            
+      <!-- 자바객체와 JSON간의 상호변환을 지원하는 라이브러리 -->
+      <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+          <version>2.12.4</version>
+      </dependency>
+      <!-- 자바객체와 Json간의 상호변환을 지원하는 라이브러리 -->
+      <dependency>
+          <groupId>com.google.code.gson</groupId>
+          <artifactId>gson</artifactId>
+          <version>2.8.7</version>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc10 -->
+      <dependency>
+          <groupId>com.oracle.database.jdbc</groupId>
+          <artifactId>ojdbc10</artifactId>
+          <version>19.11.0.0</version>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/com.oracle.database.security/oraclepki -->
+      <dependency>
+          <groupId>com.oracle.database.security</groupId>
+          <artifactId>oraclepki</artifactId>
+          <version>21.1.0.0</version>
+      </dependency>
+      
+      <!-- https://mvnrepository.com/artifact/com.oracle.database.security/osdt_core -->
+      <dependency>
+          <groupId>com.oracle.database.security</groupId>
+          <artifactId>osdt_core</artifactId>
+          <version>21.1.0.0</version>
+      </dependency>
+      
+      <!-- https://mvnrepository.com/artifact/com.oracle.database.security/osdt_cert -->
+      <dependency>
+          <groupId>com.oracle.database.security</groupId>
+          <artifactId>osdt_cert</artifactId>
+          <version>21.1.0.0</version>
+      </dependency>
+      <!-- mybatis 프레임워크 라이브러리 의존성 추가 -->
+      <dependency>
+         <groupId>org.mybatis</groupId>
+         <artifactId>mybatis</artifactId>
+         <version>3.5.7</version>
+      </dependency>
+      <!-- mybatis와 spring 연동을 지원하는 라이브러리 의존성 추가 -->
+      <dependency>
+         <groupId>org.mybatis</groupId>
+         <artifactId>mybatis-spring</artifactId>
+         <version>2.0.6</version>
+      </dependency>
+      <!-- 커넥션풀을 제공하는 라이브러리 의존성 추가 -->
+      <dependency>
+         <groupId>org.apache.commons</groupId>
+         <artifactId>commons-dbcp2</artifactId>
+         <version>2.8.0</version>
+      </dependency>
+      <!-- 오라클 JDBC 드라이브 라이브러리 의존성 추가 -->
+      <dependency>
+         <groupId>com.oracle.database.jdbc</groupId>
+         <artifactId>ojdbc8</artifactId>
+         <version>21.1.0.0</version>
+      </dependency>
+      <!-- 인코딩/디코딩 관련 라이브러리 의존성 추가 -->
+      <dependency>
+         <groupId>commons-codec</groupId>
+         <artifactId>commons-codec</artifactId>
+         <version>1.15</version>
+      </dependency>
+      <!-- 롬복 라이브러리 의존성 추가 -->
+      <dependency>
+         <groupId>org.projectlombok</groupId>
+         <artifactId>lombok</artifactId>
+         <version>${lombok.version}</version>
+         <scope>provided</scope>
+      </dependency>
+      <!-- 로그 출력을 지원하는 라이브러리 의존성 추가 -->
+      <dependency>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-api</artifactId>
+         <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-core</artifactId>
+         <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-jcl</artifactId>
+         <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-api</artifactId>
+         <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-slf4j-impl</artifactId>
+         <version>${log4j.version}</version>
+      </dependency>
+      <!-- JSTL 표준태그 라이브러리 의존성 추가 -->
+      <dependency>
+         <groupId>javax.servlet</groupId>
+         <artifactId>jstl</artifactId>
+         <version>1.2</version>
+      </dependency>
+      <!-- 서블릿을 지원하는 라이브러리 의존성 추가 -->
+      <dependency>
+         <groupId>javax.servlet</groupId>
+         <artifactId>javax.servlet-api</artifactId>
+         <version>4.0.0</version>
+         <scope>provided</scope>
+      </dependency>
+      <!-- 스프링 코어 라이브러리 의존성 추가 -->
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-core</artifactId>
+         <version>${spring.version}</version>
+         <exclusions>
+            <exclusion>
+               <groupId>commons-logging</groupId>
+               <artifactId>commons-logging</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <!-- MVC 패턴의 웹 애플리케이션 개발을 지원하는 스프링 라이브러리 추가 -->
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-webmvc</artifactId>
+         <version>${spring.version}</version>
+      </dependency>
+      <!-- 스프링 컨테이너를 제공하는 스프링 라이브러리 추가 -->
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-context</artifactId>
+         <version>${spring.version}</version>
+      </dependency>
+      <!-- 데이터베이스엑세스와 트랜잭션 처리를 지원하는 스프링 라이브러리 추가 -->
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-jdbc</artifactId>
+         <version>${spring.version}</version>
+      </dependency>
+      <!--  메일 API를 사용하기 위한 라이브러리 추가 -->
+      <dependency>
+          <groupId>javax.mail</groupId>
+          <artifactId>mail</artifactId>
+          <version>1.4.7</version>
+      </dependency>
+      <dependency>
+          <groupId>javax.activation</groupId>
+          <artifactId>activation</artifactId>
+          <version>1.1</version>
+      </dependency>
+		<!-- 웹소켓 -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-websocket</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<!-- JDBC 드라이브 라이브러리 의존성 추가 -->
+		<dependency>
+		    <groupId>com.h2database</groupId>
+		    <artifactId>h2</artifactId>
+		    <version>1.4.200</version>
+		</dependency>
+   </dependencies>
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+            <configuration>
+               <source>11</source>
+               <target>11</target>
+               <encoding>UTF-8</encoding>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+</project>

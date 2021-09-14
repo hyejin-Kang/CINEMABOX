@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd
+		http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.3.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.3.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<context:annotation-config/>
+	
+	<!-- 
+		com.cinemabox.service패키지의 모든 ServiceImpl 객체들을 스프링의 빈으로 시킨다.
+	 -->
+	<context:component-scan base-package="com.cinemabox.service"/>
+	<context:component-scan base-package="com.cinemabox.task"/>
+	<task:annotation-driven/>
+	
+	<!-- 
+		commons-dbcp2 라이브러리를 이용한 커넥션풀을 스프링의 빈으로 등록시킨다.
+	 -->
+	<bean id="dataSource" 
+		class="org.apache.commons.dbcp2.BasicDataSource"
+		p:driverClassName="oracle.jdbc.OracleDriver"
+		p:url="jdbc:oracle:thin:@cinemabox_high?TNS_ADMIN=c://cinemaboxDB"
+		p:username="admin"
+		p:password="Cinemabox1234"/>
+		
+	
+	<!-- 
+		선언적 트랜잭션 처리를 지원하는 트랜잭션 매니저를  스프링 컨테이너의 빈으로 등록한다.
+	 -->
+	<bean id="transactionManager" 
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+		p:dataSource-ref="dataSource"/>
+
+	<!-- 
+		@Transional 어노테이션이 지정된 인터페이스/클래스/메소드에 선언적 트랜잭션처리를 지원하는 번들이 스프링 컨테이너의 빈으로 등록된다.
+	 -->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+	<!-- 
+		mybatis의 핵심객체인 SqlSessionFactory객체를 스프링 컨테이너의 빈으로 등록시킨다.
+		커넥션풀 객체, mybatis설정파일, mybatis 매퍼파일 정보를 의존성 주입 해야한다.
+	 -->
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:configLocation="classpath:/mybatis/mybatis-config.xml"
+		p:mapperLocations="classpath:/mybatis/mappers/*.xml"/>
+	
+	<!-- 
+		지정된 패키지에서 mybatis용 Mapper인터페이스를 스캔해서 Mapper 인터페이스 구현객체를 생성하고, 스프링 컨테이너의 빈으로 등록한다.
+	 -->
+	<mybatis-spring:scan 
+		base-package="com.cinemabox.dao"
+		factory-ref="sqlSessionFactory"/>
+		
+	<!-- 
+		웹소켓 통신을 지원하는 AlarmHandler를 스프링의 빈으로 등록 한다.
+	 -->
+	<bean id="alarmHandler" class="com.cinemabox.websocket.handler.AlarmHandler"></bean>	
+	<!-- 
+		스프링의 빈으로 등록된 웹소켓핸들러들을 지정된 경로와 매핑시킨다.
+	 -->
+	<websocket:handlers allowed-origins="*">
+		<websocket:mapping handler="alarmHandler" path="/ws/alarm"/>
+	</websocket:handlers>
+
+</beans>

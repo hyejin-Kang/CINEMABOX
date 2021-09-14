@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cinemabox.dao.coupon.CouponDao">
+	<update id="updateCouponByExp" parameterType="com.cinemabox.vo.Coupon">
+		update
+		    CINEMABOX_COUPONS
+		set 
+		    COUPON_STATUS = #{status}
+		where
+		    COUPON_NO = #{couponNo}
+	</update>
+	
+	<select id="getAllMyCoupon" parameterType="string" resultType="com.cinemabox.vo.Coupon">
+		select
+			cl.couponlist_no as couponListNo,
+			c.coupon_type as type,
+			c.coupon_serial_no as serialNo,
+			c.coupon_issue_date as issueDate,
+			c.coupon_exp_date as expDate,
+			c.coupon_used_date as usedDate,
+			c.coupon_status as status
+		from
+			CINEMABOX_COUPONS c, CINEMABOX_COUPONLIST cl
+		where
+			cl.user_id = #{value}
+			and c.coupon_status = 'N'
+			and c.coupon_no = cl.coupon_no
+	</select>
+	
+	<select id="getCouponInfoBySerialNo" parameterType="string" resultType="com.cinemabox.vo.Coupon">
+		select
+			COUPON_NO as couponListNo,
+			COUPON_TYPE as type,
+			COUPON_ISSUE_DATE as issueDate,
+			COUPON_SERIAL_NO as serialNo,
+			COUPON_EXP_DATE as expDate,
+			COUPON_STATUS as status,
+			COUPON_USED_DATE as usedDate
+		from
+			CINEMABOX_COUPONS
+		where
+			COUPON_SERIAL_NO = #{value}
+	</select>
+	
+	<update id="updateUsedCoupon" parameterType="com.cinemabox.vo.Coupon">
+		update 
+			CINEMABOX_COUPONS
+		set
+			COUPON_STATUS = #{status},
+			COUPON_USED_DATE = sysdate+9/24
+		where
+			COUPON_SERIAL_NO = #{serialNo}
+	</update>
+
+	<select id="getCouponsByExp" resultType="com.cinemabox.vo.Coupon">
+		select 
+		     COUPON_NO as couponNo,
+		     COUPON_TYPE as type,
+		     COUPON_ISSUE_DATE as issueDate,
+		     COUPON_EXP_DATE as expDate,
+		     COUPON_STATUS as status,
+		     COUPON_USED_DATE as usedDate,
+		     COUPON_SERIAL_NO as serialNo
+		from
+		    CINEMABOX_COUPONS
+		WHERE
+		    COUPON_EXP_DATE &lt; to_date(to_char(sysdate, 'YYYYMMDD'))
+	</select>
+</mapper>

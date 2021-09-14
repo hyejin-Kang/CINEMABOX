@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cinemabox.dao.event.EventDao">
+
+<select id="getAllEvent" resultType="com.cinemabox.vo.Event">
+		select 
+			event_no					no,
+			event_title					title,
+			event_content				content,
+			event_created_Date			createdDate
+		from
+			cinemabox_events
+	</select>
+	
+	
+	<select id="detailEvent" parameterType="int" resultType="com.cinemabox.vo.Event">
+		select 
+			event_no					no,
+			event_title					title,
+			event_content				content
+		from
+			cinemabox_events
+		where
+			event_no = #{no}
+			
+	</select>
+
+
+
+
+	<select id="detailDiscount" parameterType="int" resultType="com.cinemabox.vo.Discount">
+		select 
+			discount_no					no,
+			discount_title				title,
+			discount_content			content
+		from
+			cinemabox_discount
+		where
+			discount_no = #{no}
+			
+	</select>
+
+
+
+</mapper>
