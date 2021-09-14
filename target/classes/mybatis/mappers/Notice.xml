@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cinemabox.dao.Notice.NoticeDao">
+
+	<select id="getNoticeAll" parameterType="com.cinemabox.dto.Notice.NoticeListDto" resultType="com.cinemabox.vo.Notice">
+		select 
+		    no,
+		    division,
+		    title,
+		    creatDate,
+		    hits
+		from (
+		    select 
+		        notice_no				no,
+		        notice_division			division,
+		        notice_title			title,
+		        notice_date				creatDate,
+		        notice_hits				hits,
+		        ROW_NUMBER() OVER (order by notice_no desc) num
+		    from
+		    	cinemabox_notice
+			 where 
+			    notice_title like '%${searchWord}%' 
+			order by notice_date desc )
+		where num between ${startPage} and ${endPage}
+	</select>
+	
+	<select id="getPageAllCnt" parameterType="com.cinemabox.dto.Notice.NoticeListDto" resultType="int">
+		select 
+		   ceil(count(*)/5)
+		from
+		    cinemabox_notice
+	  where 
+		    notice_title like '%${searchWord}%' 
+	</select>
+	
+	<select id="noticeMain" resultType="com.cinemabox.vo.Notice">
+		select
+        notice_no				no,
+        notice_division			division,
+        notice_title			title,
+        notice_date				creatDate,
+        notice_hits				hits   
+		from(select * from cinemabox_notice order by notice_date desc)
+		where ROWNUM &lt;= 4
+	</select> 
+	
+	
+	<select id="getDetailNoticeByNo" parameterType="int" resultType="com.cinemabox.dto.Notice.NoticeDetailDto">
+		select *
+		from
+			(select
+                notice_no				no,
+                notice_content			content,
+                notice_title			title,
+                notice_date				creatDate,
+                notice_hits				hits,
+                LEAD(notice_no)over(order by notice_no desc) as preNo,
+                LEAD(notice_title)over(order by notice_no desc) as preTitle,
+                LAG(notice_no)over(order by notice_no desc) as  nextNo,
+                LAG(notice_title)over(order by notice_no desc) as nextTitle
+			from cinemabox_notice
+			)A
+        where 
+           A. no= #{no}
+	</select>
+	
+
+	<insert id="insertNotice" parameterType="com.cinemabox.dto.Notice.NoticeDto">
+		insert into cinemabox_notice
+		(notice_no, notice_division, notice_title, notice_content, notice_date)
+		values
+		(notice_seq.nextval, #{division},  #{title}, #{content},  sysDate)
+	</insert>
+	
+	
+	
+	<delete id="deleteNotice" parameterType="int">
+		delete from
+			cinemabox_notice
+		where
+			notice_no = #{no}
+	</delete>
+	
+	
+	
+	<update id="increaseHit" parameterType="int">
+		update
+			cinemabox_notice
+		set
+			notice_hits = notice_hits + 1
+		where
+			notice_no = #{no}
+	</update>
+	
+	
+	
+	<update id="changeNotice" parameterType="com.cinemabox.dto.Notice.NoticeDetailDto">
+		update
+			cinemabox_notice
+		set
+			notice_content	= #{content},	
+			notice_title	= #{title}		
+		where
+			notice_no = #{no}
+	</update>
+	
+	
+
+
+</mapper>

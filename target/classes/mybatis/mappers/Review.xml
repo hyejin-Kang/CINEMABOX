@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cinemabox.dao.movie.ReviewDao">
+
+	<insert id="insertReview" parameterType="com.cinemabox.vo.Review">
+		insert into CINEMABOX_REVIEW
+		(REVIEW_NO, REVIEW_CONTENT, REVIEW_RATING, MOVIE_NO, USER_ID)
+		values
+		(REVIEW_SEQ.nextval, #{content}, #{rating}, #{movieNo}, #{userId})
+	</insert>
+	
+	<delete id="deleteReview" parameterType="com.cinemabox.vo.Review">
+		delete from
+			CINEMABOX_REVIEW
+		where 
+			MOVIE_NO = #{movieNo}
+			and USER_ID = #{userId}
+	</delete>
+	
+	<update id="updateMovieRating" parameterType="com.cinemabox.vo.Movie">
+		update
+			CINEMABOX_MOVIE
+		set
+			MOVIE_RATING = #{rating}
+		where 
+			MOVIE_NO = #{no}
+	</update>
+	
+	<select id="getReviewCntByMovieNo" parameterType="int" resultType="int">
+		select
+			COUNT(REVIEW_NO) as count
+		from
+			CINEMABOX_REVIEW
+		where
+			movie_no = #{value}
+	</select>
+	
+	<select id="getAllReviews" parameterType="int" resultType="com.cinemabox.vo.Review">
+		select 
+			REVIEW_NO as no,
+			REVIEW_CONTENT as content,
+			REVIEW_RATING as rating,
+			MOVIE_NO as movieNo,
+			USER_ID as userId,
+			REVIEW_STATUS as status,
+		    REVIEW_CREATED_DATE as createdDate
+		from
+			CINEMABOX_REVIEW
+		where
+			MOVIE_NO = #{value}
+			and REVIEW_STATUS = 'Y'
+		order by
+			REVIEW_CREATED_DATE desc	
+	</select>
+	
+	<select id="getReviewByUserId" parameterType="hashmap" resultType="com.cinemabox.vo.Review">
+		select 
+			REVIEW_NO as no,
+			REVIEW_CONTENT as content,
+			REVIEW_RATING as rating,
+			MOVIE_NO as movieNo,
+			USER_ID as userId,
+			REVIEW_STATUS as status,
+		    REVIEW_CREATED_DATE as createdDate
+		from
+			CINEMABOX_REVIEW
+		where
+			MOVIE_NO = #{movieNo}
+			and USER_ID = #{userId}
+			and REVIEW_STATUS = 'Y'
+	</select>
+	
+	<select id="getMovieRatingAvg" parameterType="int" resultType="double">
+		select
+			trunc(avg(REVIEW_RATING),2) as ratingAvg
+		from 
+		    CINEMABOX_REVIEW
+		where
+	 	   movie_no = #{value}
+    </select>
+</mapper>

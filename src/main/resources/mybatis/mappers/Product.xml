@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cinemabox.dao.event.ProductDao">
+
+	<select id="getAllProduct" resultType="com.cinemabox.vo.Product">
+		select 
+			cinemabox_no					no,
+			cinemabox_goods					goods,
+			cinemabox_email					email,
+			cinemabox_created_date			createdDate
+			
+		from
+			cinemabox_product
+	</select>
+	
+	<select id="getProductName" resultType="com.cinemabox.vo.Product">
+		select 
+			cinemabox_no					no,
+			cinemabox_goods					goods,
+			cinemabox_email					email,
+			
+		from
+			cinemabox_product
+	</select>
+	
+	<select id="getProductResultByEmail" parameterType="string" resultType="int">
+		select count(*) from cinemabox_prize where prize_email = #{email}
+	</select>
+	
+	<insert id="insertProductResult" parameterType="hashMap">
+		insert into cinemabox_prize (prize_no,prize_email,cinemabox_no,prize_date)
+		values (prize_seq.nextval, #{email}, #{productNo} ,sysdate)
+	</insert>
+	
+	<select id="getWinnerList" resultType="com.cinemabox.dto.Event.EventDto">
+		select concat('**',substr(c1.prize_email,3)) as email, c2.cinemabox_goods as goods from cinemabox_prize c1, cinemabox_product c2 
+		where c1.cinemabox_no = c2.cinemabox_no and ROWNUM &lt;= 5 order by c1.prize_date desc
+	</select>
+	
+
+</mapper>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cinemabox.dao.reservation.ReservationDao">
+	<!-- 결제정보 예약내역 테이블에 저장하기 -->
+	<insert id="inserPayInfo" parameterType="com.cinemabox.vo.Reservation">
+	insert into CINEMABOX_RESERVATION
+	    (RESERVATION_NO, RESERVATION_STATUS, RESERVATION_PAY_STATUS,
+	    RESERVATION_TOTAL_PRICE, RESERVATION_PAYMENT, RESERVATION_CREATED_DATE,
+	    RESERVATION_POINT, MOVIE_NO, USER_ID, TICKET_NOS, ADULT_CNT, TEENAGER_CNT,
+	    SEAT_NO, SEAT_COL, SEAT_ROW, SCREENING_DATE, SCREENING_TIME, SCREENING_END_TIME,
+		HALL_NAME, THEATER_NAME, TITLE, SCREENING_NO, THEATER_NO, HALL_NO)
+	VALUES
+    	(reservation_seq.nextval, #{status}, #{payStatus}, #{totalPrice}, #{payment}, (sysdate+9/24), #{point}, #{movieNo}, #{userId}, #{ticketNos}, #{adultCnt}, #{teenagerCnt},
+    	#{seatNo}, #{seatCol}, #{seatRow}, #{screeningDate}, #{screeningTime}, #{screeningEndTime},
+    	 #{hallName}, #{theaterName}, #{title}, #{screeningNo}, #{theaterNo}, #{hallNo})
+	</insert>
+	
+	<!-- 스트링타입의 티켓번호를 전달받아 해당하는 예매내역번호를 반환받는다. -->
+	<select id="getReservationNoByTicketNo" parameterType="string" resultType="int">
+		select
+			RESERVATION_NO
+		from
+			CINEMABOX_RESERVATION
+		where
+			TICKET_NOS LIKE  '%' || #{value} || '%'
+	</select>
+	
+	<!-- 예매내역티켓객체(티켓번호, 예매내역번호)를 전달받아 등록시킨다. -->
+	<insert id="insertTicketNoAndReservationNo" parameterType="com.cinemabox.vo.ReservationTicket">
+		insert into
+			CINEMABOX_RESERVATION_TICKET
+			(RESERVATION_NO, TICKET_NO, RESERVATION_TICKET_NO)
+		values
+			(#{reservationNo}, #{ticketNo}, reservation_ticket_seq.nextval)
+	</insert>
+	
+	<select id="getReservedInfoByRno" parameterType="int" resultType="com.cinemabox.vo.Reservation">
+		select
+			RESERVATION_NO as no, RESERVATION_TOTAL_PRICE as totalPrice, RESERVATION_POINT as point, 
+			MOVIE_NO as movieNo, ADULT_CNT as adultCnt, TEENAGER_CNT as teenagerCnt,
+		    SCREENING_DATE as screeningDate, SCREENING_TIME as screeningTime, SCREENING_END_TIME as screeningEndTime,
+			HALL_NAME as hallName, THEATER_NAME as theaterName, TITLE as title, SCREENING_NO as screeningNo, THEATER_NO as theaterNo, HALL_NO as hallNo
+		from
+			CINEMABOX_RESERVATION
+		where
+			RESERVATION_NO = #{value}
+	</select>
+	
+</mapper>

@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cinemabox.dao.ticket.TicketDao">
+	<!-- 시간이 지난 상영시간 갱신하기 -->
+	<update id="updateScreeningStatus" parameterType="com.cinemabox.dto.ticket.TicketDto">
+		update 
+			CINEMABOX_SCREENING
+		set 
+			SCREENING_STATUS = #{screeningStatus}
+		where
+			SCREENING_NO = #{screeningNo}
+	</update>
+	
+	<!-- 현재시간보다 이전인 전체 상영시간 불러오기 -->
+	<select id="getAllScreeningTime" resultType="com.cinemabox.dto.ticket.TicketDto">
+        select
+        	SCREENING_NO as screeningNo,
+        	MOVIE_NO as movieNo,
+        	THEATER_NO as theaterNo,
+			HALL_NO as hallNo,
+			SCREENING_DATE as screeningDate,
+			SCREENING_TIME as screeningTime,
+			SCREENING_STATUS as screeningStatus
+		from CINEMABOX_SCREENING
+		where
+			SCREENING_DATE &lt; SYSDATE + 9/24
+			and SCREENING_STATUS = 'Y'	
+	</select>
+
+	<!-- 극장번호, 정렬로 영화목록 불러오기 -->
+	<select id="getMovieListByTheaterNo" parameterType="hashmap" resultType="com.cinemabox.dto.ticket.TicketDto">
+        select
+        	s.SCREENING_NO as screeningNo,
+			s.MOVIE_NO as movieNo,
+			s.THEATER_NO as theaterNo,
+			s.HALL_NO as hallNo,
+			s.SCREENING_DATE as screeningDate,
+			s.SCREENING_TIME as screeningTime,
+			s.SCREENING_STATUS as screeningStatus,
+			m.MOVIE_TITLE as title,
+			m.MOVIE_RUNNING_TIME as runningTime,
+			m.MOVIE_AGE as age,
+			m.MOVIE_RESERVATION_RATE as reservationRate,
+			m.MOVIE_CUMULATIVE_AUDIENCE_CNT as cumulativeAudienceCnt,
+			m.MOVIE_RATING as rating,
+			m.MOVIE_STATUS as movieStatus,
+            h.hall_name as hallName
+		from CINEMABOX_MOVIE m, CINEMABOX_SCREENING s, CINEMABOX_THEATER t, CINEMABOX_HALL h
+		where 
+			s.THEATER_NO = #{theaterNo}
+            and s.MOVIE_NO = m.MOVIE_NO
+            and s.THEATER_NO = t.THEATER_NO
+            and s.HALL_NO = h.HALL_NO
+            and s.screening_date >= to_date(to_char(sysdate, 'YYYYMMDD'))
+            and m.MOVIE_STATUS = 'Y'
+            and m.MOVIE_SCREENING_STATUS = 'Y'
+        order by 
+        <choose>
+        	<when test="sort == 'ticket'">
+            	m.MOVIE_RESERVATION_RATE desc
+			</when>
+			<when test="sort == 'count'">
+            	m.MOVIE_CUMULATIVE_AUDIENCE_CNT desc
+           	</when>		
+           	<when test="sort == 'rating'">
+           		m.MOVIE_RATING desc
+          	</when>
+          	<otherwise>
+           		m.MOVIE_RESERVATION_RATE desc
+          	</otherwise>
+           </choose>		
+	</select>
+	
+	<!-- 극장번호, 상영날짜로 영화목록, 상영시간 불러오기 -->
+	<resultMap id="ScreeningResultMap" type="com.cinemabox.dto.ticket.ScreeningDto">
+		<result column="THEATER_NO" property="theaterNo"/>
+		<result column="MOVIE_NO" property="movieNo"/>
+		<result column="MOVIE_TITLE" property="movieTitle"/>
+		<result column="MOVIE_AGE" property="age"/>
+		<result column="MOVIE_STATUS" property="movieStatus"/>
+		
+		<collection property="screenings" ofType="com.cinemabox.dto.ticket.TicketDto">
+			<result column="SCREENING_NO" property="screeningNo"/>
+			<result column="SCREENING_DATE" property="screeningDate"/>
+			<result column="SCREENING_TIME" property="screeningTime"/>
+			<result column="SCREENING_STATUS" property="screeningStatus"/>
+			<result column="HALL_NO" property="hallNo"/>
+			<result column="HALL_NAME" property="hallName"/>
+			<result column="MOVIE_RUNNING_TIME" property="runningTime"/>
+			<result column="seatCnt" property="seatCnt"/>
+		</collection>
+	</resultMap>
+	
+	<select id="getAllMovieTime" parameterType="hashmap" resultMap="ScreeningResultMap">
+		select 
+			s.SCREENING_NO,
+			s.MOVIE_NO,
+			s.THEATER_NO,
+			s.HALL_NO,
+			m.MOVIE_TITLE,
+			m.MOVIE_RUNNING_TIME,
+			s.SCREENING_Date,
+			s.SCREENING_TIME,
+			s.SCREENING_STATUS,
+			m.MOVIE_AGE,
+			m.MOVIE_STATUS,
+            h.HALL_NAME,
+            (select count(*) from CINEMABOX_TICKET ticket 
+            	where ticket.screening_no = s.screening_no
+            	and ticket.TICKET_RESERVATION_STATUS = 'Y') as seatCnt
+		from CINEMABOX_MOVIE m, CINEMABOX_SCREENING s, CINEMABOX_THEATER t, CINEMABOX_HALL h
+		where 
+			s.THEATER_NO = #{theaterNo}
+            and to_date(to_char(s.SCREENING_DATE, 'YYYYMMDD')) = #{screeningDate}
+            and s.MOVIE_NO = m.MOVIE_NO
+            and s.THEATER_NO = t.THEATER_NO
+            and s.HALL_NO = h.HALL_NO
+            and s.SCREENING_STATUS = 'Y'
+            and m.MOVIE_STATUS = 'Y'
+            and m.MOVIE_SCREENING_STATUS = 'Y'
+        order by 
+        	s.SCREENING_DATE asc
+	</select>
+	
+	<!-- 극장에서 상영시간 불러오기 -->
+	<resultMap id="theaterScreeningRM" type="com.cinemabox.dto.ticket.TheaterTicketDto">
+		<result column="THEATER_NO" property="theaterNo"/>
+		<result column="MOVIE_NO" property="movieNo"/>
+		<result column="MOVIE_TITLE" property="movieTitle"/>
+		<result column="MOVIE_AGE" property="age"/>
+		<result column="MOVIE_RUNNING_TIME" property="runningTime"/>
+		<result column="MOVIE_STATUS" property="movieStatus"/>
+		<result column="HALL_NO" property="hallNo"/>
+		<result column="HALL_NAME" property="hallName"/>
+		
+		<collection property="screenings" ofType="com.cinemabox.dto.ticket.TicketDto">
+			<result column="SCREENING_NO" property="screeningNo"/>
+			<result column="SCREENING_DATE" property="screeningDate"/>
+			<result column="SCREENING_TIME" property="screeningTime"/>
+			<result column="SCREENING_STATUS" property="screeningStatus"/>
+			<result column="seatCnt" property="seatCnt"/>
+		</collection>
+	</resultMap>
+	
+	<select id="getAllMovieTimeByTheater" parameterType="hashmap" resultMap="theaterScreeningRM">
+		select 
+			s.SCREENING_NO,
+			s.MOVIE_NO,
+			s.THEATER_NO,
+			s.HALL_NO,
+			m.MOVIE_TITLE,
+			m.MOVIE_RUNNING_TIME,
+			s.SCREENING_Date,
+			s.SCREENING_TIME,
+			s.SCREENING_STATUS,
+			m.MOVIE_AGE,
+			m.MOVIE_STATUS,
+            h.HALL_NAME,
+            (select count(*) from CINEMABOX_TICKET ticket 
+            	where ticket.screening_no = s.screening_no
+            	and ticket.TICKET_RESERVATION_STATUS = 'Y') as seatCnt
+		from CINEMABOX_MOVIE m, CINEMABOX_SCREENING s, CINEMABOX_THEATER t, CINEMABOX_HALL h
+		where 
+			s.THEATER_NO = #{theaterNo}
+            and to_date(to_char(s.SCREENING_DATE, 'YYYYMMDD')) = #{screeningDate}
+            and s.MOVIE_NO = m.MOVIE_NO
+            and s.THEATER_NO = t.THEATER_NO
+            and s.HALL_NO = h.HALL_NO
+            and s.SCREENING_STATUS = 'Y'
+            and m.MOVIE_STATUS = 'Y'
+            and m.MOVIE_SCREENING_STATUS = 'Y'
+        order by 
+        	s.SCREENING_DATE asc
+	</select>
+	
+	<!-- 극장번호, 영화번호, 상영날짜로 상영시간 불러오기 -->
+	<select id="getMovieTime" parameterType="hashmap" resultType="com.cinemabox.dto.ticket.TicketDto">
+		select 
+			s.SCREENING_NO as screeningNo,
+			s.MOVIE_NO as movieNo,
+			s.THEATER_NO as theaterNo,
+			s.HALL_NO as hallNo,
+			m.MOVIE_TITLE as title,
+			m.MOVIE_RUNNING_TIME as runningTime,
+			s.SCREENING_Date as screeningDate,
+			s.SCREENING_TIME as screeningTime,
+			s.SCREENING_STATUS as screeningStatus,
+			m.MOVIE_AGE as age,
+			m.MOVIE_STATUS as movieStatus,
+            h.HALL_NAME as hallName,
+            (select count(*) from CINEMABOX_TICKET ticket 
+            	where ticket.screening_no = s.screening_no
+            	and ticket.TICKET_RESERVATION_STATUS = 'Y') as seatCnt
+		from CINEMABOX_MOVIE m, CINEMABOX_SCREENING s, CINEMABOX_THEATER t, CINEMABOX_HALL h
+		where 
+			s.THEATER_NO = #{theaterNo}
+            and s.MOVIE_NO = #{movieNo}
+            and to_date(to_char(s.SCREENING_DATE, 'YYYYMMDD')) = #{screeningDate}
+            and s.MOVIE_NO = m.MOVIE_NO
+            and s.THEATER_NO = t.THEATER_NO
+            and s.HALL_NO = h.HALL_NO
+            and m.MOVIE_STATUS = 'Y'
+            and m.MOVIE_SCREENING_STATUS = 'Y'
+        order by 
+        	s.SCREENING_DATE asc
+	</select>
+	
+	<!-- 극장번호, 영화번호, 상영날짜, 상영시간으로 영화정보 불러오기 -->
+	<select id="getMovieByTime" parameterType="hashmap" resultType="com.cinemabox.dto.ticket.TicketDto">
+		select 
+			s.SCREENING_NO as screeningNo,
+			s.MOVIE_NO as movieNo,
+			s.THEATER_NO as theaterNo,
+			s.HALL_NO as hallNo,
+			m.MOVIE_TITLE as title,
+			m.MOVIE_RUNNING_TIME as runningTime,
+			s.SCREENING_DATE as screeningDate,
+			s.SCREENING_TIME as screeningTime,
+			s.SCREENING_STATUS as screeningStatus,
+			m.MOVIE_AGE as age,
+			m.MOVIE_STATUS as movieStatus,
+            h.HALL_NAME as hallName,
+            (select count(*) from CINEMABOX_TICKET ticket 
+            	where ticket.screening_no = s.screening_no
+            	and ticket.TICKET_RESERVATION_STATUS = 'Y') as seatCnt
+		from CINEMABOX_MOVIE m, CINEMABOX_SCREENING s, CINEMABOX_THEATER t, CINEMABOX_HALL h
+		where 
+			s.THEATER_NO = #{theaterNo}
+            and s.MOVIE_NO = #{movieNo}
+            and to_date(to_char(s.SCREENING_DATE, 'YYYYMMDD')) = #{screeningDate}
+			and s.SCREENING_TIME = #{time}            
+            and s.MOVIE_NO = m.MOVIE_NO
+            and s.THEATER_NO = t.THEATER_NO
+            and s.HALL_NO = h.HALL_NO
+            and m.MOVIE_STATUS = 'Y'
+			and MOVIE_SCREENING_STATUS = 'Y'
+	</select>	
+	
+	<!-- 상영번호로 현재 티켓(좌석) 상태 불러오기 -->
+	<select id="getTicketStatusByScreeningNo" parameterType="int" resultType="com.cinemabox.dto.ticket.TicketDto">
+		select 
+		    s.SCREENING_NO as screeningNo,
+		    s.hall_no as hallNo,
+		    t.TICKET_RESERVATION_STATUS as ticketStatus,
+		    t.SEAT_NO as seatNo
+		from CINEMABOX_SCREENING s, CINEMABOX_TICKET t
+		where 
+		    s.SCREENING_NO = t.SCREENING_NO
+		    and s.SCREENING_NO = #{screeningNo}
+	</select>
+	
+	<select id="getAllSeat" parameterType="int" resultType="com.cinemabox.dto.ticket.TicketDto">
+		select
+			s.seat_no as seatNo, s.seat_col as seatCol, s.seat_row as seatRow,
+			t.screening_no as screeningNo,
+			t.ticket_reservation_status as ticketStatus
+		from
+			CINEMABOX_SEAT s, CINEMABOX_TICKET t, CINEMABOX_SCREENING sc
+		where
+			s.seat_no = t.seat_no
+			and t.screening_no = sc.screening_no
+			and t.screening_no = #{value}
+	</select>
+	
+	<select id="getTicketNo" parameterType="com.cinemabox.dto.ticket.TicketDto" resultType="com.cinemabox.dto.ticket.TicketDto">
+		select
+			t.ticket_no as ticketNo
+		from
+			CINEMABOX_SEAT s, CINEMABOX_TICKET t, CINEMABOX_SCREENING sc
+		where
+			s.seat_no = t.seat_no
+			and t.screening_no = sc.screening_no
+			and t.screening_no = #{screeningNo}
+			and s.seat_no = #{seatNo}
+	</select>
+	
+	<select id="getWebSocketData" parameterType="com.cinemabox.dto.ticket.WebsocketTicketDto" resultType="com.cinemabox.dto.ticket.WebsocketTicketDto">
+		select
+			s.seat_no as webSeatNo, 
+			t.ticket_no as webTicketNo,
+			t.screening_no as webScreeningNo, 
+			t.TICKET_RESERVATION_STATUS as webTicketStatus,
+			s.seat_row as webSeatRow,
+			s.seat_col as webSeatCol, 
+			t.SEAT_SELECTED_DATE as seatSelectedDate
+		from
+			CINEMABOX_SEAT s, CINEMABOX_TICKET t, CINEMABOX_SCREENING sc
+		where
+			s.seat_no = t.seat_no
+			and t.screening_no = sc.screening_no
+			and t.screening_no = #{webScreeningNo}
+            and s.seat_no = #{webSeatNo}
+	</select>
+	
+	<update id="updateWebSocetStatus" parameterType="com.cinemabox.dto.ticket.WebsocketTicketDto">
+		update 
+			CINEMABOX_TICKET
+		set
+			TICKET_RESERVATION_STATUS = #{webTicketStatus},
+			SEAT_SELECTED_DATE = #{seatSelectedDate}
+		where
+			TICKET_NO = #{webTicketNo}
+	</update>
+	
+	<select id="settingWebSocketSeat" resultType="com.cinemabox.dto.ticket.WebsocketTicketDto">
+		SELECT 
+			TICKET_NO as webTicketNo,
+			SEAT_SELECTED_DATE as seatSelectedDate, 
+			ticket_reservation_status as webTicketStatus
+		FROM
+			cinemabox_ticket
+		where
+			ticket_reservation_status = 'T'
+			and (sysdate+9/24) &gt; SEAT_SELECTED_DATE + 20/24/60
+	</select>
+	
+	<update id="updateTicketReservationStatus" parameterType="int">
+		update 
+			CINEMABOX_TICKET
+		set
+			TICKET_RESERVATION_STATUS = 'Y'
+		where
+			TICKET_NO = #{ticketNo}
+	</update>
+	
+</mapper>

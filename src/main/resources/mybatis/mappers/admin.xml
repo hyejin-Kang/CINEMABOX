@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cinemabox.dao.admin.AdminDao">
+	
+	<insert id="insertMovie" parameterType="com.cinemabox.vo.Movie">
+		<selectKey keyProperty="no" resultType="int" order="BEFORE">
+			select MOVIE_seq.nextval from dual
+		</selectKey>
+		insert into CINEMABOX_MOVIE
+		(MOVIE_NO, MOVIE_GENRE, MOVIE_TITLE, MOVIE_RUNNING_TIME, MOVIE_DIRECTOR, MOVIE_CASTING, MOVIE_RELEASE_DATE, MOVIE_CLOSE_DATE, MOVIE_AGE, MOVIE_THUMBNAIL, MOVIE_SYNOPSIS, MOVIE_TRAILER_FIRST, MOVIE_TRAILER_SECOND)
+		values																						
+		(#{no}, #{genre}, #{title}, #{runningTime}, #{director}, #{casting}, #{releaseDate}, #{closeDate}, #{age}, #{thumbnail}, #{synopsis}, #{trailerFirst}, #{trailerSecond})
+	</insert>	
+	
+	<insert id="insertScreening" parameterType="com.cinemabox.vo.Screening">
+		<selectKey keyProperty="screeningNo" resultType="int" order="BEFORE">
+			select SCREENING_seq.nextval from dual
+		</selectKey>
+		insert into CINEMABOX_SCREENING
+		(SCREENING_NO, MOVIE_NO, THEATER_NO, HALL_NO, SCREENING_DATE, SCREENING_TIME)
+		values
+		(#{screeningNo}, #{movieNo}, #{theaterNo}, #{hallNo}, #{screeningDate}, to_char(#{screeningDate}, 'HH24:mi'))
+	</insert>
+	
+	<insert id="insertSeat" parameterType="com.cinemabox.vo.Screening">
+		insert into CINEMABOX_TICKET 
+		(SCREENING_NO, SEAT_NO)
+		select ${screeningNo}, SEAT_NO
+		from CINEMABOX_SEAT
+		where HALL_NO = #{hallNo}
+	</insert>																			
+	
+	<update id="updateMovie" parameterType="com.cinemabox.vo.Movie">
+		update 
+			CINEMABOX_MOVIE
+		set	
+			MOVIE_GENRE 			=	#{genre},
+			MOVIE_TITLE 			=	#{title},
+			MOVIE_RUNNING_TIME		=	#{runningTime},
+			MOVIE_DIRECTOR			=	#{director},
+			MOVIE_CASTING			=	#{casting},
+			MOVIE_RELEASE_DATE 		=	#{releaseDate},
+			MOVIE_CLOSE_DATE 		=	#{closeDate},
+			MOVIE_AGE 				=	#{age},
+			MOVIE_THUMBNAIL			=	#{thumbnail},
+			MOVIE_SYNOPSIS			=	#{synopsis},
+			MOVIE_TRAILER_FIRST		=   #{trailerFirst},
+			MOVIE_TRAILER_SECOND	=	#{trailerSecond}
+		where
+			MOVIE_NO   				= 	#{no}
+	</update>
+	
+	<update id="updateScreening" parameterType="com.cinemabox.vo.Screening">
+		update 
+			CINEMABOX_SCREENING
+		set	
+			MOVIE_NO 		=		#{movieNo},
+			THEATER_NO 		=		#{theaterNo},
+			HALL_NO			=		#{hallNo},
+			SCREENING_DATE	=		#{screeningDate}
+		where
+			SCREENING_NO  	= 		#{screeningNo}
+	</update>
+	
+	<update id="deleteMovie" parameterType="int">
+		update 
+			CINEMABOX_MOVIE
+		set
+			MOVIE_SCREENING_STATUS = 'N'
+		where 
+			MOVIE_NO   	 = #{no}	
+	</update>
+	
+	<update id="recoveryMovie" parameterType="int">
+		update 
+			CINEMABOX_MOVIE
+		set
+			MOVIE_SCREENING_STATUS = 'Y'
+		where 
+			MOVIE_NO   	 = #{no}	
+	</update>
+	
+	<select id="getMovieByNo" parameterType="int" resultType="com.cinemabox.vo.Movie">
+		select
+			MOVIE_NO				as no,
+			MOVIE_GENRE 			as genre,
+			MOVIE_TITLE 			as title,
+			MOVIE_RUNNING_TIME		as runningTime,
+			MOVIE_DIRECTOR			as director,
+			MOVIE_CASTING			as casting,
+			MOVIE_RELEASE_DATE 		as releaseDate,
+			MOVIE_CLOSE_DATE 		as closeDate,
+			MOVIE_AGE 				as age,
+			MOVIE_THUMBNAIL			as thumbnail,
+			MOVIE_SYNOPSIS			as synopsis,
+			MOVIE_TRAILER_FIRST     as trailerFirst,
+			MOVIE_TRAILER_SECOND	as trailerSecond
+		from
+			CINEMABOX_MOVIE
+		where
+			MOVIE_NO = #{value}
+	</select>
+	
+	<select id="getAllTheaterInfo" resultType="com.cinemabox.vo.Theater">
+		select
+			THEATER_NO				as theaterNo,
+			THEATER_NAME 			as theaterName
+		from
+			CINEMABOX_THEATER
+		order by	
+			THEATER_NAME ASC
+	</select>
+	
+	<select id="getAllHallInfo" resultType="com.cinemabox.vo.Hall">
+		select
+			HALL_NO				as hallNo,
+			HALL_NAME 			as hallName
+		from
+			CINEMABOX_HALL
+		order by	
+			HALL_NAME ASC
+	</select>
+	
+	<select id="getScreeningByNo" parameterType="int" resultType="com.cinemabox.vo.Screening">
+		select
+			SCREENING_NO			as screeningNo,
+			MOVIE_NO 				as movieNo,
+			THEATER_NO 				as theaterNo,
+			HALL_NO					as hallNo,
+			SCREENING_DATE			as screeningDate
+		from
+			CINEMABOX_SCREENING
+		where
+			SCREENING_NO  			= #{screeningNo}
+	</select>
+	
+	<select id="getScreeningsByMovieNo" parameterType="int" resultType="com.cinemabox.dto.admin.AdminDto">
+		select
+			M.MOVIE_NO				as movieNo,
+			S.SCREENING_NO			as screeningNo,
+			S.THEATER_NO 			as theaterNo,
+			S.HALL_NO				as hallNo,
+			H.HALL_NAME				as hallName,
+			S.SCREENING_DATE		as screeningDate,
+			M.MOVIE_TITLE			as title,
+			T.THEATER_NO			as theaterNo,
+			T.THEATER_NAME 			as theaterName,
+            (SELECT COUNT(*) 
+                from
+                    CINEMABOX_TICKET T
+                where
+                    TICKET_RESERVATION_STATUS = 'N'
+                and
+                    SCREENING_NO	= S.SCREENING_NO) remainingSeats
+		from
+			CINEMABOX_SCREENING S, CINEMABOX_MOVIE M, CINEMABOX_THEATER T, CINEMABOX_HALL H
+		where 
+			M.MOVIE_NO				= S.MOVIE_NO
+		and
+			S.THEATER_NO			= T.THEATER_NO 
+		and
+			S.HALL_NO				= H.HALL_NO	 
+		and
+			M.MOVIE_NO  			= #{value}
+		order by 
+			screeningDate ASC
+	</select>
+	
+	<select id="getAllDeleteMovies" resultType="com.cinemabox.vo.Movie">
+		select
+			MOVIE_NO				as no,
+			MOVIE_GENRE 			as genre,
+			MOVIE_TITLE 			as title,
+			MOVIE_RUNNING_TIME		as runningTime,
+			MOVIE_DIRECTOR			as director,
+			MOVIE_CASTING			as casting,
+			MOVIE_RELEASE_DATE 		as releaseDate,
+			MOVIE_CLOSE_DATE 		as closeDate,
+			MOVIE_AGE 				as age,
+			MOVIE_THUMBNAIL			as thumbnail,
+			MOVIE_SYNOPSIS			as synopsis,
+			MOVIE_TRAILER_FIRST     as trailerFirst,
+			MOVIE_TRAILER_SECOND	as trailerSecond,
+			MOVIE_SCREENING_STATUS	as screeningStatus
+		from
+			CINEMABOX_MOVIE
+		where
+			MOVIE_SCREENING_STATUS = 'N'
+		order by
+			MOVIE_NO desc
+	</select>
+	
+	<!-- 총 게시글 갯수 출력 -->
+	<select id="countBoard" resultType="int">
+		SELECT COUNT(*) 
+		FROM 
+			CINEMABOX_MOVIE
+		where
+			MOVIE_SCREENING_STATUS = 'Y'
+	</select>
+
+	<!-- 페이징 처리 후 게시글 조회 -->
+	<select id="selectMoivePaging" resultType="com.cinemabox.vo.Movie">
+		SELECT * 
+			FROM (
+				SELECT ROWNUM RN, A.* 
+					FROM (
+							SELECT 
+								MOVIE_NO				as no,
+								MOVIE_GENRE 			as genre,
+								MOVIE_TITLE 			as title,
+								MOVIE_RUNNING_TIME		as runningTime,
+								MOVIE_DIRECTOR			as director,
+								MOVIE_CASTING			as casting,
+								MOVIE_RELEASE_DATE 		as releaseDate,
+								MOVIE_CLOSE_DATE 		as closeDate,
+								MOVIE_AGE 				as age,
+								MOVIE_THUMBNAIL			as thumbnail,
+								MOVIE_SYNOPSIS			as synopsis,
+								MOVIE_TRAILER_FIRST     as trailerFirst,
+								MOVIE_TRAILER_SECOND	as trailerSecond
+							from
+								CINEMABOX_MOVIE
+							WHERE	
+								MOVIE_SCREENING_STATUS = 'Y'
+							order by
+								MOVIE_NO desc
+							) A
+					)
+			WHERE 
+				RN BETWEEN #{start} AND #{end}
+	</select>
+	
+	<!-- 검색 후 게시글 조회 -->
+	<select id="getAllSearchMovies" parameterType="string" resultType="com.cinemabox.vo.Movie">
+	SELECT 
+		MOVIE_NO				as no,
+		MOVIE_GENRE 			as genre,
+		MOVIE_TITLE 			as title,
+		MOVIE_RUNNING_TIME		as runningTime,
+		MOVIE_DIRECTOR			as director,
+		MOVIE_CASTING			as casting,
+		MOVIE_RELEASE_DATE 		as releaseDate,
+		MOVIE_CLOSE_DATE 		as closeDate,
+		MOVIE_AGE 				as age,
+		MOVIE_THUMBNAIL			as thumbnail,
+		MOVIE_SYNOPSIS			as synopsis,
+		MOVIE_TRAILER_FIRST     as trailerFirst,
+		MOVIE_TRAILER_SECOND	as trailerSecond
+	from
+		CINEMABOX_MOVIE
+	where 
+		MOVIE_TITLE LIKE '%'||#{value}||'%'
+	and
+		MOVIE_SCREENING_STATUS = 'Y'
+	order by
+		MOVIE_NO desc
+	</select>
+</mapper>

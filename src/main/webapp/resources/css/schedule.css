@@ -1,0 +1,140 @@
+@charset "UTF-8";
+div::-webkit-scrollbar {
+	width: 5px;
+}
+li{
+	list-style: none;
+}
+img, svg {
+	vertical-align: text-bottom;
+}
+dl{
+	margin-block-start: 0;
+    margin-block-end: 0;
+}
+dd{
+	margin:0;
+}
+a{
+	text-decoration: none;
+	color:black;
+}
+a:hover{
+	text-decoration: none;
+	color:black;
+}
+.row{
+	--bs-gutter-x: 0;
+}
+.act{
+	background-color: #ffc107 !important;
+}
+.loc-act{
+	background: white !important;
+}
+.day-act{
+	background:#eee !important;
+}
+.nav-tabs .nav-link{
+	border-radius: 0px;
+	padding:18px;
+	font-size: 0.85rem;
+}
+.nav-link, .nav-link:hover{
+	color:#7F7F7F;
+}
+.nav-tabs, #div-days{
+	border-bottom:1px solid #CCC;
+}
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active{
+	border-bottom:1px solid black;
+}
+.section_step_tit{
+	height: 800px;
+}
+.section_step_tit > ul > li{
+	height: 200px;
+	background:white;
+	border:1px solid black;
+	border-bottom:none;
+	padding:80px 15px;
+	font-size: 0.8rem;
+	cursor: default;
+}
+.section_step_tit > ul > li:last-child{
+	border-bottom:1px solid black;
+}
+#div-theater, #div-movie, #div-date{
+	background: white;
+}
+#div-theater, #div-movie{
+	border-right: 1px solid gray;
+}
+#div-theater h5, #div-movie h5, #div-date h5{
+	cursor:default;
+	background: black;
+	font-size: 1.1rem;
+}
+#nav-entire-tab, #nav-special-tab{
+	width: 50%;
+}
+#nav-entire ul>li, #nav-special ul>li{
+	padding:8px;
+	cursor: pointer;
+}
+#nav-tabContent{
+	height: 582px;
+}
+#div-location2, #nav-entireTime{
+	overflow-y:auto;
+}
+#ul-location1, #ul-special-location1{
+	background:#F5F5F5;
+	margin:0;
+	padding:0;
+}
+.li-location1, .li-location2{
+	padding: 15px !important;
+}
+.form-select{
+	font-size: 0.8rem;
+}
+#ul-movieList li{
+/* 	padding:15px; */
+	margin-bottom:15px;
+	list-style: none;
+	cursor: pointer;
+}
+#ul-location2{
+	padding:8px !important;
+}
+.btn-day{
+	background: none;
+	border: none;
+}
+#ul-days li{
+	cursor: pointer;
+}
+#nav-entireTime{
+	height: 100%;
+}
+#ul-list-time li{
+	cursor:pointer;
+	border:1px solid #ddd;
+	width: 14%;
+	margin: 0 0 11px 0;
+	background: linear-gradient(rgba(255, 255, 255, 1) 0%, rgba(248, 248, 248, 1) 100%);
+}
+.dd-seat, .dd-hall{
+	font-family: 'Roboto';
+    font-size: 0.75rem;
+    color: #666;
+}
+.modal-footer{
+	justify-content: center;
+	border-top:none;
+	margin-bottom:15px;
+}
+.modal-footer button{
+	width:29%;
+}

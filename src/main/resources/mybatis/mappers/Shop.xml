@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cinemabox.dao.shop.ShopDao">
+	
+	<insert id="insertShopPurchase" parameterType="com.cinemabox.dto.shop.ShopPurchaseDto">
+		<selectKey keyProperty="oderNo" resultType="int" order="BEFORE">
+			select ORDER_seq.nextval from dual
+		</selectKey>
+		insert into CINEMABOX_ORDER_LIST
+		(ORDER_NO, SNACK_NO, GIFT_NO, ORDER_AMOUNT, USER_ID)
+		values																						
+		(#{oderNo}, #{snackNo}, #{giftNo}, #{orderAmount}, #{userId})
+	</insert>	
+	
+	<insert id="insertGift" parameterType="com.cinemabox.vo.Gift">
+		<selectKey keyProperty="giftNo" resultType="int" order="BEFORE">
+			select GIFT_seq.nextval from dual
+		</selectKey>
+		insert into CINEMABOX_GIFTS
+		(GIFT_NO, GIFT_NAME, GIFT_PRICE, GIFT_THUMBNAIL, GIFT_DISCOUNT_PRICE)
+		values																						
+		(#{giftNo}, #{name}, #{price}, #{thumbnail}, #{discountPrice})
+	</insert>
+	
+	<insert id="insertSnack" parameterType="com.cinemabox.vo.Snack">
+		<selectKey keyProperty="snackNo" resultType="int" order="BEFORE">
+			select SNACK_seq.nextval from dual
+		</selectKey>
+		insert into CINEMABOX_SNACK
+		(SNACK_NO, SNACK_NAME, SNACK_PRICE, SNACK_THUMBNAIL, SNACK_DETAIL)
+		values																						
+		(#{snackNo}, #{name}, #{price}, #{thumbnail}, #{detail})
+	</insert>		
+	
+	<update id="updateGift" parameterType="com.cinemabox.vo.Gift">
+		update 
+			CINEMABOX_GIFTS
+		set	
+			GIFT_NAME 				=	#{name},
+			GIFT_PRICE 				=	#{price},
+			GIFT_THUMBNAIL			=	#{thumbnail},
+			GIFT_DISCOUNT_PRICE		=	#{discountPrice}
+		where
+			GIFT_NO   				= 	#{giftNo}
+	</update>
+	
+	<update id="updateSnack" parameterType="com.cinemabox.vo.Snack">
+		update 
+			CINEMABOX_SNACK
+		set	
+			SNACK_NAME 				=	#{name},
+			SNACK_PRICE 			=	#{price},
+			SNACK_THUMBNAIL			=	#{thumbnail},
+			SNACK_DETAIL			=	#{detail}
+		where
+			SNACK_NO   				= 	#{snackNo}
+	</update>
+
+	<select id="getSnackByNo" parameterType="int" resultType="com.cinemabox.vo.Snack">
+		select
+			SNACK_NO			as snackNo,
+			SNACK_NAME 			as name,
+			SNACK_PRICE 		as price,
+			SNACK_THUMBNAIL		as thumbnail,
+			SNACK_DETAIL		as detail
+		from
+			CINEMABOX_SNACK
+		where
+			SNACK_NO = #{value}
+	</select>
+	
+	<select id="getGiftByNo" parameterType="int" resultType="com.cinemabox.vo.Gift">
+		select
+			GIFT_NO					as giftNo,
+			GIFT_NAME 				as name,
+			GIFT_PRICE 				as price,
+			GIFT_THUMBNAIL			as thumbnail,
+			GIFT_DISCOUNT_PRICE		as discountPrice
+		from
+			CINEMABOX_GIFTS
+		where
+			GIFT_NO = #{value}
+	</select>
+		
+	<select id="getAllSnackInfo" resultType="com.cinemabox.vo.Snack">
+		select
+			SNACK_NO			as snackNo,
+			SNACK_NAME 			as name,
+			SNACK_PRICE 		as price,
+			SNACK_THUMBNAIL		as thumbnail,
+			SNACK_DETAIL		as detail
+		from
+			CINEMABOX_SNACK
+		order by
+			SNACK_NO Asc
+	</select>
+	
+	<select id="getAllGiftInfo" resultType="com.cinemabox.vo.Gift">
+		select
+			GIFT_NO					as giftNo,
+			GIFT_NAME 				as name,
+			GIFT_PRICE 				as price,
+			GIFT_THUMBNAIL			as thumbnail,
+			GIFT_DISCOUNT_PRICE		as discountPrice
+		from
+			CINEMABOX_GIFTS
+		order by
+			GIFT_NO Asc
+	</select>
+	
+</mapper>
